@@ -91,6 +91,7 @@ typedef struct {
 	int value;
 	int fingerId;
 	int joystick;
+	const char* inputChar;
 } event_data;
 
 HL_PRIM bool HL_NAME(init_once)() {
@@ -145,6 +146,8 @@ HL_PRIM void HL_NAME(gl_options)( int major, int minor, int depth, int stencil, 
 HL_PRIM bool HL_NAME(hint_value)( vbyte* name, vbyte* value) {
 	return SDL_SetHint((char*)name, (char*)value) == SDL_TRUE;
 }
+
+bool textediting = false;
 
 HL_PRIM bool HL_NAME(event_loop)( event_data *event ) {
 	while (true) {
@@ -262,11 +265,16 @@ HL_PRIM bool HL_NAME(event_loop)( event_data *event ) {
 			break;
 		case SDL_TEXTEDITING:
 			// skip
+			textediting = true;
 			continue;
 		case SDL_TEXTINPUT:
 			event->type = TextInput;
 			event->keyCode = *(int*)e.text.text;
 			event->keyCode &= e.text.text[0] ? e.text.text[1] ? e.text.text[2] ? e.text.text[3] ? 0xFFFFFFFF : 0xFFFFFF : 0xFFFF : 0xFF : 0;
+			// back all chars.
+            // event->inputChar = hl_to_utf16(e.text.text);
+			 event->inputChar = "1";
+			printf("test %s\\n", event->inputChar);
 			break;
 		case SDL_CONTROLLERDEVICEADDED:
 			event->type = GControllerAdded;
@@ -836,6 +844,16 @@ HL_PRIM char* HL_NAME(get_clipboard_text)() {
 	return bytes;
 }
 
+// SDL2.0.22 support, Used to improve ime input.
+HL_PRIM bool HL_NAME(is_text_input_shown)(){
+	if(textediting)
+	{
+		textediting = false;
+		return true;
+	}
+	return SDL_IsTextInputShown();
+}
+
 HL_PRIM varray* HL_NAME(get_displays)() {
 	int n = SDL_GetNumVideoDisplays();
 	if (n < 0)
@@ -916,6 +934,7 @@ DEFINE_PRIM(_VOID, free_cursor, _CURSOR);
 DEFINE_PRIM(_VOID, set_cursor, _CURSOR);
 DEFINE_PRIM(_BOOL, set_clipboard_text, _BYTES);
 DEFINE_PRIM(_BYTES, get_clipboard_text, _NO_ARG);
+DEFINE_PRIM(_BOOL, is_text_input_shown, _NO_ARG);
 DEFINE_PRIM(_ARR, get_displays, _NO_ARG);
 DEFINE_PRIM(_ARR, get_display_modes, _I32);
 DEFINE_PRIM(_DYN, get_current_display_mode, _I32 _BOOL);
