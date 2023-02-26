@@ -272,9 +272,9 @@ HL_PRIM bool HL_NAME(event_loop)( event_data *event ) {
 			event->keyCode = *(int*)e.text.text;
 			event->keyCode &= e.text.text[0] ? e.text.text[1] ? e.text.text[2] ? e.text.text[3] ? 0xFFFFFFFF : 0xFFFFFF : 0xFFFF : 0xFF : 0;
 			// back all chars.
-            // event->inputChar = hl_to_utf16(e.text.text);
-			 event->inputChar = "1";
-			printf("test %s\\n", event->inputChar);
+			event->value = 2;
+            event->inputChar = hl_to_utf16(e.text.text);
+			// printf("test %s\\n", event->inputChar);
 			break;
 		case SDL_CONTROLLERDEVICEADDED:
 			event->type = GControllerAdded;
