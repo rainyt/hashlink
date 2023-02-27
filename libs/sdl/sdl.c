@@ -851,7 +851,11 @@ HL_PRIM bool HL_NAME(is_text_input_shown)(){
 		textediting = false;
 		return true;
 	}
+	#if defined(_WIN32) || defined(HL_MAC)
 	return SDL_IsTextInputShown();
+	#else
+	return false;
+	#endif
 }
 
 HL_PRIM varray* HL_NAME(get_displays)() {
